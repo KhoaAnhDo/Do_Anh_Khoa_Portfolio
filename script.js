@@ -7,39 +7,31 @@ const navMenu = document.querySelector(".nav-menu");
 const navLinks = document.querySelectorAll(".nav-link");
 
 menuToggle.addEventListener("click", () => {
+  navMenu.classList.toggle("active");
 
-    navMenu.classList.toggle("active");
+  const icon = menuToggle.querySelector("i");
 
-    const icon = menuToggle.querySelector("i");
-
-    if (navMenu.classList.contains("active")) {
-        icon.classList.remove("fa-bars");
-        icon.classList.add("fa-xmark");
-    } else {
-        icon.classList.remove("fa-xmark");
-        icon.classList.add("fa-bars");
-    }
-
+  if (navMenu.classList.contains("active")) {
+    icon.classList.remove("fa-bars");
+    icon.classList.add("fa-xmark");
+  } else {
+    icon.classList.remove("fa-xmark");
+    icon.classList.add("fa-bars");
+  }
 });
-
 
 /* Close mobile menu when clicking a link */
 
-navLinks.forEach(link => {
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    navMenu.classList.remove("active");
 
-    link.addEventListener("click", () => {
+    const icon = menuToggle.querySelector("i");
 
-        navMenu.classList.remove("active");
-
-        const icon = menuToggle.querySelector("i");
-
-        icon.classList.remove("fa-xmark");
-        icon.classList.add("fa-bars");
-
-    });
-
+    icon.classList.remove("fa-xmark");
+    icon.classList.add("fa-bars");
+  });
 });
-
 
 /* =====================================================
    ACTIVE NAVIGATION
@@ -48,38 +40,28 @@ navLinks.forEach(link => {
 const sections = document.querySelectorAll("section");
 
 window.addEventListener("scroll", () => {
+  let current = "";
 
-    let current = "";
+  sections.forEach((section) => {
+    const sectionTop = section.offsetTop - 150;
+    const sectionHeight = section.offsetHeight;
 
-    sections.forEach(section => {
+    if (
+      window.scrollY >= sectionTop &&
+      window.scrollY < sectionTop + sectionHeight
+    ) {
+      current = section.getAttribute("id");
+    }
+  });
 
-        const sectionTop = section.offsetTop - 150;
-        const sectionHeight = section.offsetHeight;
+  navLinks.forEach((link) => {
+    link.classList.remove("active");
 
-        if (
-            window.scrollY >= sectionTop &&
-            window.scrollY < sectionTop + sectionHeight
-        ) {
-            current = section.getAttribute("id");
-        }
-
-    });
-
-
-    navLinks.forEach(link => {
-
-        link.classList.remove("active");
-
-        if (
-            link.getAttribute("href") === "#" + current
-        ) {
-            link.classList.add("active");
-        }
-
-    });
-
+    if (link.getAttribute("href") === "#" + current) {
+      link.classList.add("active");
+    }
+  });
 });
-
 
 /* =====================================================
    CONTACT FORM
@@ -89,138 +71,97 @@ const contactForm = document.getElementById("contact-form");
 const formMessage = document.getElementById("form-message");
 
 contactForm.addEventListener("submit", function (event) {
+  event.preventDefault();
 
-    event.preventDefault();
+  const name = document.getElementById("name").value;
 
-    const name =
-        document.getElementById("name").value;
+  const email = document.getElementById("email").value;
 
-    const email =
-        document.getElementById("email").value;
+  const subject = document.getElementById("subject").value;
 
-    const subject =
-        document.getElementById("subject").value;
+  const message = document.getElementById("message").value;
 
-    const message =
-        document.getElementById("message").value;
+  /* Create contact information */
 
+  const contactData = {
+    name: name,
 
-    /* Create contact information */
+    email: email,
 
-    const contactData = {
+    subject: subject,
 
-        name: name,
+    message: message,
 
-        email: email,
+    date: new Date().toLocaleString(),
+  };
 
-        subject: subject,
+  /* Get old messages */
 
-        message: message,
+  let contacts = JSON.parse(localStorage.getItem("portfolioContacts")) || [];
 
-        date: new Date().toLocaleString()
+  /* Add new message */
 
-    };
+  contacts.push(contactData);
 
+  /* Save */
 
-    /* Get old messages */
+  localStorage.setItem("portfolioContacts", JSON.stringify(contacts));
 
-    let contacts =
-        JSON.parse(
-            localStorage.getItem("portfolioContacts")
-        ) || [];
+  /* Success message */
 
+  formMessage.textContent = "Thank you! Your message has been received.";
 
-    /* Add new message */
+  formMessage.style.color = "#75f5d0";
 
-    contacts.push(contactData);
+  /* Reset form */
 
-
-    /* Save */
-
-    localStorage.setItem(
-        "portfolioContacts",
-        JSON.stringify(contacts)
-    );
-
-
-    /* Success message */
-
-    formMessage.textContent =
-        "Thank you! Your message has been received.";
-
-    formMessage.style.color = "#75f5d0";
-
-
-    /* Reset form */
-
-    contactForm.reset();
-
+  contactForm.reset();
 });
-
 
 /* =====================================================
    SCROLL REVEAL
 ===================================================== */
 
-const revealElements =
-    document.querySelectorAll(
-        ".section-title, .about-text, .skills, .gallery-item, .contact-info, .contact-form"
-    );
+const revealElements = document.querySelectorAll(
+  ".section-title, .about-text, .skills, .gallery-item, .contact-info, .contact-form",
+);
 
+const revealObserver = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
 
-const revealObserver =
-    new IntersectionObserver(
-        (entries, observer) => {
+        observer.unobserve(entry.target);
+      }
+    });
+  },
 
-            entries.forEach(entry => {
+  {
+    threshold: 0.15,
+  },
+);
 
-                if (entry.isIntersecting) {
+revealElements.forEach((element) => {
+  element.classList.add("reveal");
 
-                    entry.target.classList.add("show");
-
-                    observer.unobserve(entry.target);
-
-                }
-
-            });
-
-        },
-
-        {
-            threshold: 0.15
-        }
-    );
-
-
-revealElements.forEach(element => {
-
-    element.classList.add("reveal");
-
-    revealObserver.observe(element);
-
+  revealObserver.observe(element);
 });
-
 
 /* =====================================================
    GALLERY IMAGE PREVIEW
 ===================================================== */
 
-const galleryItems =
-    document.querySelectorAll(".gallery-item");
+const galleryItems = document.querySelectorAll(".gallery-item");
 
-galleryItems.forEach(item => {
+galleryItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    const image = item.querySelector("img");
 
-    item.addEventListener("click", () => {
+    if (image) {
+      const imageWindow = window.open("");
 
-        const image =
-            item.querySelector("img");
-
-        if (image) {
-
-            const imageWindow =
-                window.open("");
-
-            imageWindow.document.write(`
+      imageWindow.document.write(`
                 <html>
                     <head>
                         <title>Photo Preview</title>
@@ -258,10 +199,6 @@ galleryItems.forEach(item => {
                     </body>
                 </html>
             `);
-
-        }
-
-    });
-
+    }
+  });
 });
-
