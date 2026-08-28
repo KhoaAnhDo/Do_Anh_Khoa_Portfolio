@@ -70,52 +70,73 @@ window.addEventListener("scroll", () => {
 const contactForm = document.getElementById("contact-form");
 const formMessage = document.getElementById("form-message");
 
-contactForm.addEventListener("submit", function (event) {
-  event.preventDefault();
+contactForm.addEventListener("submit", async function (event) {
 
-  const name = document.getElementById("name").value;
+    event.preventDefault();
 
-  const email = document.getElementById("email").value;
+    // Get form values
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const subject = document.getElementById("subject").value;
+    const message = document.getElementById("message").value;
 
-  const subject = document.getElementById("subject").value;
+    // Create data object
+    const contactData = {
+        name: name,
+        email: email,
+        subject: subject,
+        message: message
+    };
 
-  const message = document.getElementById("message").value;
+    try {
 
-  /* Create contact information */
+        // Send data to FastAPI
+        const response = await fetch(
+            "https://your-backend-domain.com/contact",
+            {
+                method: "POST",
 
-  const contactData = {
-    name: name,
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-    email: email,
+                body: JSON.stringify(contactData)
+            }
+        );
 
-    subject: subject,
+        // Get response from FastAPI
+        const result = await response.json();
 
-    message: message,
+        console.log("Server response:", result);
 
-    date: new Date().toLocaleString(),
-  };
+        if (response.ok && result.success) {
 
-  /* Get old messages */
+            formMessage.textContent =
+                "Thank you! Your message has been received.";
 
-  let contacts = JSON.parse(localStorage.getItem("portfolioContacts")) || [];
+            formMessage.style.color = "#75f5d0";
 
-  /* Add new message */
+            // Reset form
+            contactForm.reset();
 
-  contacts.push(contactData);
+        } else {
 
-  /* Save */
+            formMessage.textContent =
+                "Something went wrong. Please try again.";
 
-  localStorage.setItem("portfolioContacts", JSON.stringify(contacts));
+            formMessage.style.color = "red";
+        }
 
-  /* Success message */
+    } catch (error) {
 
-  formMessage.textContent = "Thank you! Your message has been received.";
+        console.error("Error sending message:", error);
 
-  formMessage.style.color = "#75f5d0";
+        formMessage.textContent =
+            "Unable to connect to the server.";
 
-  /* Reset form */
+        formMessage.style.color = "red";
+    }
 
-  contactForm.reset();
 });
 
 /* =====================================================
