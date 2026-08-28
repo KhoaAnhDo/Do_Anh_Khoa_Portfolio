@@ -92,7 +92,7 @@ contactForm.addEventListener("submit", async function (event) {
 
         // Send data to FastAPI
         const response = await fetch(
-            "https://your-backend-domain.com/contact",
+            "https://portfolio-backend-yyen.onrender.com/contact",
             {
                 method: "POST",
 
